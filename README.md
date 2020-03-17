@@ -99,7 +99,7 @@ metadata:
 spec:
   dnsNames:
   - example.com
-  - *.example.com
+  - '*.example.com'
   issuerRef:
     name: letsencrypt
   secretName: example-com-tls
