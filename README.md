@@ -12,8 +12,8 @@ This is a webhook solver for [OVH](http://www.ovh.com).
 Choose a unique group name to identify your company or organization (for example `acme.mycompany.example`).
 
 ```bash
-helm install ./deploy/cert-manager-webhook-ovh \
- --set groupName='<YOUR_UNIQUE_GROUP_NAME>'
+helm install <HELMNAME> ./deploy/cert-manager-webhook-ovh \
+ --set groupName='<YOUR_UNIQUE_GROUP_NAME>' -n <NAMESPACE>
 ```
 
 If you customized the installation of cert-manager, you may need to also set the `certManager.namespace` and `certManager.serviceAccountName` values.
@@ -28,9 +28,14 @@ If you customized the installation of cert-manager, you may need to also set the
 
 2. Create a secret to store your application secret:
 
+Creating single secret in your NAMESPACE causes issues (https://github.com/jetstack/cert-manager/issues/650) that's why add it twice (possibly I could resolve it better)
+
     ```bash
-    kubectl create secret generic ovh-credentials \
-      --from-literal=applicationSecret='<OVH_APPLICATION_SECRET>'
+    kubectl create secret generic ovh-credentials --from-literal=applicationSecret='<OVH_APPLICATION_SECRET>'
+    ```
+
+    ```bash
+    kubectl create secret generic ovh-credentials -n <NAMESPACE> --from-literal=applicationSecret='<OVH_APPLICATION_SECRET>'
     ```
 
 3. Grant permission to get the secret to the `cert-manager-webhook-ovh` service account:
@@ -40,6 +45,7 @@ If you customized the installation of cert-manager, you may need to also set the
     kind: Role
     metadata:
       name: cert-manager-webhook-ovh:secret-reader
+      namespace: <NAMESPACE>
     rules:
     - apiGroups: [""]
       resources: ["secrets"]
@@ -50,6 +56,7 @@ If you customized the installation of cert-manager, you may need to also set the
     kind: RoleBinding
     metadata:
       name: cert-manager-webhook-ovh:secret-reader
+      namespace: <NAMESPACE>
     roleRef:
       apiGroup: rbac.authorization.k8s.io
       kind: Role
@@ -57,7 +64,8 @@ If you customized the installation of cert-manager, you may need to also set the
     subjects:
     - apiGroup: ""
       kind: ServiceAccount
-      name: cert-manager-webhook-ovh
+      namespace: <NAMESPACE>
+      name: <HELMNAME>-cert-manager-webhook-ovh
     ```
 
 4. Create a certificate issuer:
@@ -67,6 +75,7 @@ If you customized the installation of cert-manager, you may need to also set the
     kind: Issuer
     metadata:
       name: letsencrypt
+      namespace: <NAMESPACE>
     spec:
       acme:
         server: https://acme-v02.api.letsencrypt.org/directory
@@ -87,7 +96,10 @@ If you customized the installation of cert-manager, you may need to also set the
                 consumerKey: '<OVH_CONSUMER_KEY>'
     ```
 
+
 ## Certificate
+
+NOT NEEDED SINCE CERT-MANAGER WILL GENERATE ITSELF
 
 Issue a certificate:
 
