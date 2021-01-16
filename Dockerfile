@@ -1,4 +1,4 @@
-FROM golang:1.14.4-alpine3.12 AS build_deps
+FROM golang:alpine AS build_deps
 
 RUN apk add --no-cache git
 
@@ -14,9 +14,12 @@ FROM build_deps AS build
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o webhook -ldflags '-w -extldflags "-static"' .
+RUN CGO_ENABLED=0 go build -a -installsuffix cgo -o webhook -ldflags '-w -extldflags "-static"' .
 
-FROM alpine:3.12
+FROM --platform=$BUILDPLATFORM alpine:3.12
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 RUN apk add --no-cache ca-certificates
 
