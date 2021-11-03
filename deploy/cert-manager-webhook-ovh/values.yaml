@@ -13,7 +13,7 @@ certManager:
   serviceAccountName: cert-manager
 
 image:
-  repository: baarde/cert-manager-webhook-ovh
+  repository: ghcr.io/telyn/cert-manager-webhook-ovh
   pullPolicy: IfNotPresent
   pullSecrets: []
 

@@ -16,7 +16,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
-	"github.com/jetstack/cert-manager/pkg/acme/webhook/apis/acme/v1alpha1"
+	"github.com/jetstack/cert-manager/pkg/acme/webhook/apis/acme/v1alpha2"
 	"github.com/jetstack/cert-manager/pkg/acme/webhook/cmd"
 	"github.com/jetstack/cert-manager/pkg/issuer/acme/dns/util"
 	"github.com/ovh/go-ovh/ovh"
@@ -111,7 +111,7 @@ func (s *ovhDNSProviderSolver) validate(cfg *ovhDNSProviderConfig, allowAmbientC
 	return nil
 }
 
-func (s *ovhDNSProviderSolver) ovhClient(ch *v1alpha1.ChallengeRequest) (*ovh.Client, error) {
+func (s *ovhDNSProviderSolver) ovhClient(ch *v1alpha2.ChallengeRequest) (*ovh.Client, error) {
 	cfg, err := loadConfig(ch.Config)
 	if err != nil {
 		return nil, err
@@ -153,7 +153,7 @@ func (s *ovhDNSProviderSolver) secret(ref corev1.SecretKeySelector, namespace st
 // This method should tolerate being called multiple times with the same value.
 // cert-manager itself will later perform a self check to ensure that the
 // solver has correctly configured the DNS provider.
-func (s *ovhDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
+func (s *ovhDNSProviderSolver) Present(ch *v1alpha2.ChallengeRequest) error {
 	ovhClient, err := s.ovhClient(ch)
 	if err != nil {
 		return err
@@ -170,7 +170,7 @@ func (s *ovhDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 // value provided on the ChallengeRequest should be cleaned up.
 // This is in order to facilitate multiple DNS validations for the same domain
 // concurrently.
-func (s *ovhDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
+func (s *ovhDNSProviderSolver) CleanUp(ch *v1alpha2.ChallengeRequest) error {
 	ovhClient, err := s.ovhClient(ch)
 	if err != nil {
 		return err
